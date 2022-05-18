@@ -1,0 +1,1 @@
+from django.urls import pathfrom contacts.views import send_feedback, contacts_page, about_pageurlpatterns = [    path('', contacts_page, name='contacts_page'),    path('about/', about_page, name='about_page'),    path('feedback/', send_feedback, name='feedback_page'),]

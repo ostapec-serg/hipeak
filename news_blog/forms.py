@@ -1,0 +1,1 @@
+from django import formsfrom news_blog.models import Commentsclass CommentsForm(forms.ModelForm):    class Meta:        model = Comments        fields = ['comment_text']        widgets = {            'comment_text': forms.Textarea(attrs={'rows': 4, 'col': 20})        }

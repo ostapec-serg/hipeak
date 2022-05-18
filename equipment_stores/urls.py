@@ -1,0 +1,1 @@
+from django.urls import pathfrom equipment_stores.views import EquipmentStoresListView, StoreDetailurlpatterns = [    path('', EquipmentStoresListView.as_view(), name='equipment_stores'),    path('store/<str:slug>', StoreDetail.as_view(), name='store_detail'),]
