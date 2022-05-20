@@ -1,8 +1,13 @@
-from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseRedirect
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.views.generic import ListView, DetailView, FormView
+from django.contrib import messages
+
 
 from news_blog.forms import CommentsForm
-from tours.models import Organisations
+from tours.models import Organisations, Ratings
 
 
 class OrganisationsView(ListView):
@@ -34,3 +39,27 @@ class OrganisationsDetail(DetailView):
 
 def tour_detail(request):
     pass
+
+
+@login_required(login_url='/login')
+def organisation_rating(request):
+    if request.method == 'POST':
+        if 1 <= int(request.POST['rating']) <= 5:
+            organisation_instance = get_object_or_404(Organisations, slug=request.POST['organisation'])
+            exists_rating = Ratings.objects.filter(user_id=request.user, organisation=organisation_instance,)
+            if exists_rating:
+                exists_rating.delete()
+                messages.success(request, 'Ваш голос вже враховано!')
+                return HttpResponseRedirect(reverse('organisation_detail', args=[(str(organisation_instance.slug))]))
+            else:
+                create_rating_instance = Ratings(organisation=organisation_instance,
+                                                 user=request.user, rating=request.POST['rating'])
+                create_rating_instance.save()
+                messages.success(request, 'Дякуємо за Вашу оцінку')
+                return HttpResponseRedirect(reverse('organisation_detail', args=[(str(organisation_instance.slug))]))
+        else:
+            messages.error(request, 'Невірна оцінка. Спробуйте ще!  Оцінка повинна бути від 1 до 5')
+            return HttpResponseRedirect(reverse('organisation_detail', kwargs={'slug': request.POST['organisation']}))
+    else:
+        messages.error(request, 'Невірний запит. Спробуйте ще!')
+        return HttpResponseRedirect(reverse('organisation_detail', kwargs={'slug': request.POST['organisation']}))

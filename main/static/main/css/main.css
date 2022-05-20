@@ -1,4 +1,4 @@
-@import url(fontawesome-all.min.css);
+/*@import url(fontawesome-all.min.css);*/
 @import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,700|Raleway:400,800,900");
 
 /*
@@ -207,7 +207,7 @@ input, select, textarea {
 
 	h1, h2, h3, h4, h5, h6 {
 		color: #3c3b3b;
-		font-family: "Raleway", Helvetica, sans-serif;
+	/*	!*font-family: "Raleway", Helvetica, sans-serif;*!*/
 		font-weight: 800;
 		letter-spacing: 0.25em;
 		line-height: 1.65;

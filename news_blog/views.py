@@ -34,11 +34,11 @@ class NewsDetail(DetailView, FormView):
             if form.is_valid():
                 return self.form_valid(form)
             else:
-                messages.error(self.request, 'Коментар не додано!')
+                messages.error(self.request, 'Форма заповнене не вірно!')
                 return self.form_invalid(form)
         else:
             messages.error(self.request, 'Щоб залишати коментарі потрібно авторизуватись')
-            return HttpResponseRedirect(reverse('blog post detail', kwargs={'pk': self.get_object().id}))
+            return HttpResponseRedirect(reverse('blog post detail', kwargs={'slug': self.get_object().slug}))
 
     def form_valid(self, form):
         comment = Comments()

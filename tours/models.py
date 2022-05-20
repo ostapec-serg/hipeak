@@ -39,9 +39,9 @@ class Organisations(models.Model):
     def total_rating(self):
         all_voice = self.rating.count()
         rating = sum(self.rating.values_list('ratings__rating', flat=True))
-        if not all_voice:
-            return 0
-        return round(rating / all_voice, 1)
+        if all_voice:
+            return round(rating / all_voice, 1)
+        return 0
 
 
 class Bookmarks(models.Model):
