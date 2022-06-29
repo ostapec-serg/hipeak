@@ -1,7 +1,13 @@
 from pathlib import Path
 import os
+import collections.abc
 
 from django.contrib import staticfiles
+import django
+from django.conf.global_settings import SESSION_COOKIE_AGE
+from django.utils.encoding import force_str
+django.utils.encoding.force_text = force_str
+
 
 try:
     from .local_settings import *
@@ -47,10 +53,15 @@ INSTALLED_APPS = [
     'news_blog.apps.NewsBlogConfig',
     'main.apps.MainPageConfig',
     'search.apps.SearchConfig',
+    'telegram_bot.apps.TelegramBotConfig',
     'captcha',
     # 'snowpenguin.django.recaptcha3',
     'social_django',
-    'phone_field',
+    'phonenumber_field',
+    'haystack',
+    'django_filters',
+    'bootstrapform',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -89,8 +100,6 @@ WSGI_APPLICATION = 'hipeak_portal.wsgi.application'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 
-
-
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
@@ -120,56 +129,63 @@ USE_I18N = True
 
 USE_TZ = True
 
+DATE_INPUT_FORMATS = ['%d-%m-%Y']
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
-# STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-#
-# STATIC_URL = '/static/'
-#
-# STATICFILES_DIRS = [
-#     os.path.join(BASE_DIR, 'static')
-# ]
 
-
+STATIC_URL = '/static/'
+MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = 'static/'
-STATICFILES_DIRS = (
+STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),
-)
-
+]
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-MEDIA_URL = '/media/'
-
-
 LOGIN_URL = '/auth/login/google-oauth2/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = "/login"
-
-
-# SMTP Configuration
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.ukr.net'
-EMAIL_PORT = 465
-EMAIL_USE_SSL = True
-
-# Google reCAPCHA
-
-RECAPTCHA_DEFAULT_ACTION = "generic"
-RECAPTCHA_SCORE_THRESHOLD = 0.5
-# RECAPTCHA_DOMAIN = 'www.recaptcha.net'
-
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 )
-
 SOCIAL_AUTH_URL_NAMESPACE = 'social'
+AUTH_USER_MODEL = 'registration_authorisation.User'
 
-# HAYSTACK SEARCH SETTINGS
+# SMTP Configuration
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.ukr.net'
+EMAIL_PORT = 465
+EMAIL_USE_SSL = True
+HIPEAK_EMAIL = 'hipeak.portal@gmail.com'
+# EMAIL_HOST = 'localhost'
+# EMAIL_PORT = 1025
+
+DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+# Google reCAPCHA
+RECAPTCHA_DEFAULT_ACTION = "generic"
+RECAPTCHA_SCORE_THRESHOLD = 0.5
+
+
+# HAYSTACK ELASTICSEARC SEARCH SETTINGS
+HAYSTACK_SEARCH_RESULTS_PER_PAGE = 1
+
+
+RATING_CHOICE = (
+        (1, "Ok"),
+        (2, "Fine"),
+        (3, "Good"),
+        (4, "Nice"),
+        (5, "Amazing")
+    )
+
+BOT_URL = "https://api.telegram.org/bot%s/" % BOT_TOKEN
+
+
+SESSION_AGE = SESSION_COOKIE_AGE

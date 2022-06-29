@@ -6,5 +6,6 @@ from equipment_stores.models import EquipmentStores
 
 @admin.register(EquipmentStores)
 class EquipmentStoresAdmin(ModelAdmin):
-    list_display = ('name', 'url', 'services',)
-    list_display_links = ('name', 'url', 'services',)
+    list_display = ('name', 'url', 'service',)
+    list_display_links = ('name', 'url', 'service',)
+    prepopulated_fields = {"slug": ("name",)}

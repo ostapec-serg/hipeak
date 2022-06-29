@@ -1,34 +1,33 @@
-from django.contrib.auth.models import User
 from django.db import models
-from django.db.models.signals import post_save
-from django.dispatch import receiver
 
-from phone_field import PhoneField
+from pytils.translit import slugify
+from phonenumber_field.modelfields import PhoneNumberField
+
+from registration_authorisation.models import User
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    slug = models.SlugField(unique=True)
-    photo = models.ImageField(null=True, upload_to='profile_img/',
-                              blank='true', verbose_name='profile_image')
-    phone = PhoneField(blank=True, help_text='Contact phone number')
-    bio = models.CharField(max_length=160, null=True, blank=True)
-    birthday = models.DateField(null=True, blank=True)
-    email_subscribe = models.BooleanField(default=True)
-    telegram_subscribe = models.BooleanField(default=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', verbose_name='Користувач')
+    slug = models.SlugField(auto_created=True)
+    photo = models.ImageField(upload_to='profile_img/',
+                              blank=True, null=True, verbose_name='Фото профілю')
+    phone = PhoneNumberField(blank=True, help_text='В форматі(+12(345)6789 123) ', verbose_name='Номер телефону')
+    bio = models.CharField(max_length=160, blank=True, null=True, verbose_name='Біографія',
+                           help_text='Максимум 200 символів')
+    birthday = models.DateField(null=True, blank=True, verbose_name='Дата народження',
+                                help_text='В форматі дд.мм.рр.!')
+    email_subscribe = models.BooleanField(default=True, verbose_name='Підписка на почтову розсилку')
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.user)
+        super(Profile, self).save(*args, **kwargs)
 
     def __str__(self):
         return self.user.username
 
-    @receiver(post_save, sender=User)
-    def create_user_profile(sender, instance, created, **kwargs):
-        if created:
-            Profile.objects.create(user=instance)
-
-    @receiver(post_save, sender=User)
-    def save_user_profile(sender, instance, **kwargs):
-        instance.profile.save()
-
     def get_absolute_url(self):
         return f"/my-profile/{self.slug}"
 
+    class Meta:
+        verbose_name = 'Прфіль'
+        verbose_name_plural = 'Профілі'

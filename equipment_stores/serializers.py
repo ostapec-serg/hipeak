@@ -1,0 +1,1 @@
+from rest_framework import serializersfrom equipment_stores.models import EquipmentStoresclass EquipmentStoresSerializer(serializers.ModelSerializer):    class Meta:        model = EquipmentStores        fields = (         'name', 'description',         'url', 'phone', 'email',         'store_address', 'is_active',         'location', 'service'        )

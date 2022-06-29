@@ -1,0 +1,1 @@
+from django.core.management.base import BaseCommandfrom aiogram import executorclass Command(BaseCommand):    help = 'Start telegram_bot hipeak_bot'    def handle(self, *args, **kwargs):        from telegram_bot import bot        executor.start_polling(bot.dp, on_startup=bot.startup)
