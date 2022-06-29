@@ -50,6 +50,7 @@ class Organisations(models.Model):
 
     def total_rating(self):
         all_voice = self.rating.count()
+<<<<<<< HEAD
         if all_voice:
             rating = self.rating.values_list('ratings__rating', flat=True)
             result = round(sum(rating) / all_voice, 1)
@@ -187,6 +188,12 @@ class TourBookmarks(models.Model):
     class Meta:
         verbose_name = 'Закладка. Тури'
         verbose_name_plural = 'Закладки. Тури'
+=======
+        rating = sum(self.rating.values_list('ratings__rating', flat=True))
+        if all_voice:
+            return round(rating / all_voice, 1)
+        return 0
+>>>>>>> 21a625e0fd39a6ed230266947b4b916e3dec324c
 
 
 class Bookmarks(models.Model):

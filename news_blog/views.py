@@ -80,7 +80,25 @@ class EditNewsView(UpdateView):
         if self.request.user.is_superuser:
             if form.is_valid():
                 return self.form_valid(form)
+<<<<<<< HEAD
         return self.form_invalid(form)
+=======
+            else:
+                messages.error(self.request, 'Форма заповнене не вірно!')
+                return self.form_invalid(form)
+        else:
+            messages.error(self.request, 'Щоб залишати коментарі потрібно авторизуватись')
+            return HttpResponseRedirect(reverse('blog post detail', kwargs={'slug': self.get_object().slug}))
+
+    def form_valid(self, form):
+        comment = Comments()
+        comment.comment_text = self.request.POST['comment_text']
+        comment.author = self.request.user
+        comment.news_name = self.get_object()
+        comment.save()
+        messages.success(self.request, 'Коментар додано!')
+        return super().form_valid(form)
+>>>>>>> 21a625e0fd39a6ed230266947b4b916e3dec324c
 
 
 @login_required(login_url='/login')
