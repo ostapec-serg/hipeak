@@ -1,15 +1,22 @@
-from rest_framework import generics
+from rest_framework import generics, mixins
+from rest_framework.viewsets import GenericViewSet
+from main.permissions import IsSuperUserOrReadOnly
 
-from django.urls import reverse_lazy
 from django.views.generic import ListView, DetailView
 
 from equipment_stores.models import EquipmentStores
 from equipment_stores.serializers import EquipmentStoresSerializer
 
 
-class EquipmentStoresView(generics.ListAPIView):
+class EquipmentStoresView(mixins.ListModelMixin,
+                          mixins.CreateModelMixin,
+                          mixins.RetrieveModelMixin,
+                          mixins.UpdateModelMixin,
+                          GenericViewSet
+                          ):
     queryset = EquipmentStores.objects.all()
     serializer_class = EquipmentStoresSerializer
+    permission_classes = (IsSuperUserOrReadOnly,)
 
 
 class EquipmentStoresListView(ListView):

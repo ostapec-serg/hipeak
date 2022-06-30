@@ -79,7 +79,7 @@ jQuery(document).ready(function($){
 			setTimeout(function(){ showWord(nextWord, typeLettersDelay) }, typeAnimationDelay);
 		
 		} else if($word.parents('.box-headline').hasClass('letters')) {
-			var bool = ($word.children('i').length >= nextWord.children('i').length) ? true : false;
+			let bool = ($word.children('i').length >= nextWord.children('i').length) ? true : false;
 			hideLetter($word.find('i').eq(0), $word, bool, lettersDelay);
 			showLetter(nextWord.find('i').eq(0), nextWord, bool, lettersDelay);
 

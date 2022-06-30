@@ -3,6 +3,7 @@ from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView
 from django.shortcuts import redirect, get_object_or_404
 from django.core.mail import send_mass_mail
+from rest_framework.viewsets import GenericViewSet
 
 from hipeak_portal.local_settings import EMAIL_HOST_USER
 from my_profile.models import Profile
@@ -11,12 +12,19 @@ from news_blog.models import News, Likes, Comments
 from main.views import DetailViewWithComment
 from news_blog.serializers import NewsSerializer
 
-from rest_framework import generics
+from rest_framework import mixins
+from main.permissions import IsSuperUserOrReadOnly
 
 
-class NewsAPIView(generics.ListAPIView):
+class NewsAPIView(mixins.ListModelMixin,
+                  mixins.CreateModelMixin,
+                  mixins.RetrieveModelMixin,
+                  mixins.UpdateModelMixin,
+                  GenericViewSet
+                  ):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
+    permission_classes = (IsSuperUserOrReadOnly,)
 
 
 class NewsListView(ListView):
@@ -80,25 +88,7 @@ class EditNewsView(UpdateView):
         if self.request.user.is_superuser:
             if form.is_valid():
                 return self.form_valid(form)
-<<<<<<< HEAD
         return self.form_invalid(form)
-=======
-            else:
-                messages.error(self.request, 'Форма заповнене не вірно!')
-                return self.form_invalid(form)
-        else:
-            messages.error(self.request, 'Щоб залишати коментарі потрібно авторизуватись')
-            return HttpResponseRedirect(reverse('blog post detail', kwargs={'slug': self.get_object().slug}))
-
-    def form_valid(self, form):
-        comment = Comments()
-        comment.comment_text = self.request.POST['comment_text']
-        comment.author = self.request.user
-        comment.news_name = self.get_object()
-        comment.save()
-        messages.success(self.request, 'Коментар додано!')
-        return super().form_valid(form)
->>>>>>> 21a625e0fd39a6ed230266947b4b916e3dec324c
 
 
 @login_required(login_url='/login')

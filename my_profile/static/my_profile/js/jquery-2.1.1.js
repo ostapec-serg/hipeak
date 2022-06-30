@@ -292,7 +292,7 @@ jQuery.extend({
 	},
 
 	isEmptyObject: function( obj ) {
-		var name;
+		let name;
 		for ( name in obj ) {
 			return false;
 		}
@@ -1214,7 +1214,7 @@ setDocument = Sizzle.setDocument = function( node ) {
 			}
 
 			// Opera 10-11 does not throw on post-comma invalid pseudos
-			div.querySelectorAll("*,:x");
+			div.querySelectorAll("*,:");
 			rbuggyQSA.push(",.*:");
 		});
 	}
@@ -5490,7 +5490,7 @@ function defaultDisplay( nodeName ) {
 		if ( display === "none" || !display ) {
 
 			// Use the already-created iframe if possible
-			iframe = (iframe || jQuery( "<iframe frameborder='0' width='0' height='0'/>" )).appendTo( doc.documentElement );
+			iframe = (iframe || jQuery( "<iframe  width='0' height='0'/>" )).appendTo( doc.documentElement );
 
 			// Always write a new HTML skeleton so Webkit and Firefox don't choke on reuse
 			doc = iframe[ 0 ].contentDocument;

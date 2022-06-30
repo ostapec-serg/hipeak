@@ -36,7 +36,8 @@ class Registration(CreateView):
         """If the form is valid, save the associated model."""
         code = self.get_random_code()
         username = form.cleaned_data["username"]
-        check_user = self.check_user(username)
+        email = form.cleaned_data["email"]
+        check_user = self.check_user(email, username)
         if check_user:
             self.send_code(username, code)
             messages.success(
@@ -79,11 +80,10 @@ class Registration(CreateView):
         )
         return trd_send_registration_code
 
-    def check_user(self, username):
+    def check_user(self, email, username):
         """Checking if user exist"""
-        form = self.get_form()
         try:
-            user = User.objects.get(email=form.cleaned_data['email'])
+            user = User.objects.get(email=email)
             if user and user.is_active is False:
                 user.username = form.cleaned_data['username']
                 user.save()

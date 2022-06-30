@@ -42,6 +42,9 @@ class News(models.Model):
     def total_likes(self):
         return self.like.count()
 
+    def get_non_parent_comments(self):
+        return self.comments_set.filter(parent__isnull=True)
+
     def total_comments(self):
         return self.comment.count()
 
@@ -69,6 +72,10 @@ class Comments(models.Model):
     comment_text = models.CharField(max_length=300)
     pub_date = models.DateTimeField(auto_now_add=True)
     moderate_status = models.BooleanField(default=False)
+    parent = models.ForeignKey(
+        'self', on_delete=models.SET_NULL,
+        blank=True, null=True
+    )
 
     def __str__(self):
         return f"{self.article_name} | {self.author}"

@@ -50,7 +50,6 @@ class Organisations(models.Model):
 
     def total_rating(self):
         all_voice = self.rating.count()
-<<<<<<< HEAD
         if all_voice:
             rating = self.rating.values_list('ratings__rating', flat=True)
             result = round(sum(rating) / all_voice, 1)
@@ -62,6 +61,9 @@ class Organisations(models.Model):
         if exists:
             return exists
         return None
+
+    def get_non_parent_comments(self):
+        return self.organisationscomment_set.filter(parent__isnull=True)
 
     def get_absolute_url(self):
         return f"/tours/organisations/{self.slug}"
@@ -128,11 +130,13 @@ class Tours(models.Model):
         return 0
 
     def get_absolute_url(self):
-        # return reverse("tours", kwargs={'slug': self.slug})
-        return f"/tours/{self.slug}"
+        return reverse("tours:detail", kwargs={'slug': self.slug})
 
     def total_comments(self):
         return self.comment.count()
+
+    def get_non_parent_comments(self):
+        return self.tourcomments_set.filter(parent__isnull=True)
 
     def in_user_bookmarks(self, username):
         exists = TourBookmarks.objects.filter(tour__name=self.name, user=username)
@@ -147,10 +151,15 @@ class Tours(models.Model):
 
 class OrganisationsComment(models.Model):
     article_name = models.ForeignKey(Organisations, on_delete=models.CASCADE, null=True)
-    author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default='user')
+    author = models.ForeignKey(User, on_delete=models.SET_NULL,
+        blank=True, null=True)
     comment_text = models.CharField(max_length=150)
     pub_date = models.DateTimeField(auto_now_add=True)
     moderate_status = models.BooleanField(default=False)
+    parent = models.ForeignKey(
+        'self', on_delete=models.SET_NULL,
+        blank=True, null=True
+    )
 
     class Meta:
         verbose_name = 'Коментар організаціЇ'
@@ -162,10 +171,15 @@ class OrganisationsComment(models.Model):
 
 class TourComments(models.Model):
     article_name = models.ForeignKey(Tours, on_delete=models.CASCADE, null=True)
-    author = models.ForeignKey(User, on_delete=models.NOT_PROVIDED)
+    author = models.ForeignKey(User, on_delete=models.SET_NULL,
+        blank=True, null=True)
     comment_text = models.CharField(max_length=300)
     pub_date = models.DateTimeField(auto_now_add=True)
     moderate_status = models.BooleanField(default=False)
+    parent = models.ForeignKey(
+        'self', on_delete=models.SET_NULL,
+        blank=True, null=True
+    )
 
     def __str__(self):
         return f"Tour: {self.article_name.name} | Author: {self.author}"
@@ -184,16 +198,9 @@ class TourBookmarks(models.Model):
 
     # def exist_bookmark(self):
 
-
     class Meta:
         verbose_name = 'Закладка. Тури'
         verbose_name_plural = 'Закладки. Тури'
-=======
-        rating = sum(self.rating.values_list('ratings__rating', flat=True))
-        if all_voice:
-            return round(rating / all_voice, 1)
-        return 0
->>>>>>> 21a625e0fd39a6ed230266947b4b916e3dec324c
 
 
 class Bookmarks(models.Model):
@@ -209,7 +216,8 @@ class Bookmarks(models.Model):
 
 
 class TourRatings(models.Model):
-    user = models.ForeignKey(User, on_delete=models.NOT_PROVIDED)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL,
+        blank=True, null=True)
     rate_article = models.ForeignKey(Tours, on_delete=models.CASCADE, null=True)
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICE, null=True)
 
@@ -222,7 +230,9 @@ class TourRatings(models.Model):
 
 
 class Ratings(models.Model):
-    user = models.ForeignKey(User, on_delete=models.NOT_PROVIDED)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL,
+                             blank=True, null=True
+                             )
     rate_article = models.ForeignKey(Organisations, on_delete=models.CASCADE, null=True)
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICE, null=True)
 

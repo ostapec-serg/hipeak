@@ -1,6 +1,6 @@
 from django.contrib import messages
 from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
 from django.views.generic import TemplateView, DetailView, FormView
 
@@ -31,14 +31,20 @@ class DetailViewWithComment(DetailView, FormView):
             messages.error(self.request, 'Форма заповнене не вірно!')
             return self.form_invalid(form)
         messages.error(self.request, 'Щоб залишати коментарі потрібно авторизуватись')
-        return HttpResponseRedirect(reverse('news:detail', kwargs={'slug': self.get_object().slug}))
+        return redirect(self.get_success_url())
 
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
         author = self.request.user
         comment_text = self.request.POST['comment_text']
         name = self.get_object()
-        comment = self.comment_model(article_name=name, author=author, comment_text=comment_text)
+        comment = self.comment_model(
+            article_name=name,
+            author=author,
+            comment_text=comment_text
+        )
+        if self.request.POST.get('parent', None):
+            comment.parent_id = int(self.request.POST.get('parent'))
         comment.save()
         messages.success(self.request, 'Коментар додано!')
         return super().form_valid(form)

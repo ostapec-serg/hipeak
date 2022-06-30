@@ -1,35 +1,30 @@
-<<<<<<< HEAD
-from rest_framework import generics
+from rest_framework import mixins
+from rest_framework.viewsets import GenericViewSet
 
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse
 from django.views.generic import ListView, CreateView, UpdateView
-=======
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseRedirect
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse
-from django.views.generic import ListView, DetailView, FormView
-from django.contrib import messages
-
-
-from news_blog.forms import CommentsForm
-from tours.models import Organisations, Ratings
->>>>>>> 21a625e0fd39a6ed230266947b4b916e3dec324c
 
 from tours import forms
 from tours import models
 from main import views
 from tours.filters import ToursFilter
 from tours.models import Tours
+from main.permissions import IsSuperUserOrReadOnly
 from tours.serializers import ToursSerializer
 
 
-class ToursAPIView(generics.ListAPIView):
-    queryset = models.Tours.objects.all()
+class ToursAPIView(mixins.ListModelMixin,
+                   mixins.CreateModelMixin,
+                   mixins.RetrieveModelMixin,
+                   mixins.UpdateModelMixin,
+                   GenericViewSet
+                   ):
+    queryset = models.Tours.objects.filter(is_active=True)
     serializer_class = ToursSerializer
+    permission_classes = (IsSuperUserOrReadOnly,)
 
 
 class ToursFilteredView(ListView):
@@ -182,7 +177,6 @@ class BookmarkView(views.BaseRatingBookmarkView):
                                                                tour=instance)
         return exists_rating
 
-<<<<<<< HEAD
     def bookmark_save(self, article_object):
         user = self.request.user
         self._article = article_object
@@ -191,31 +185,3 @@ class BookmarkView(views.BaseRatingBookmarkView):
         else:
             article_object = self._article_model(organisation=self._article, user=user)
         return article_object.save()
-=======
-def tour_detail(request):
-    pass
-
-
-@login_required(login_url='/login')
-def organisation_rating(request):
-    if request.method == 'POST':
-        if 1 <= int(request.POST['rating']) <= 5:
-            organisation_instance = get_object_or_404(Organisations, slug=request.POST['organisation'])
-            exists_rating = Ratings.objects.filter(user_id=request.user, organisation=organisation_instance,)
-            if exists_rating:
-                exists_rating.delete()
-                messages.success(request, 'Ваш голос вже враховано!')
-                return HttpResponseRedirect(reverse('organisation_detail', args=[(str(organisation_instance.slug))]))
-            else:
-                create_rating_instance = Ratings(organisation=organisation_instance,
-                                                 user=request.user, rating=request.POST['rating'])
-                create_rating_instance.save()
-                messages.success(request, 'Дякуємо за Вашу оцінку')
-                return HttpResponseRedirect(reverse('organisation_detail', args=[(str(organisation_instance.slug))]))
-        else:
-            messages.error(request, 'Невірна оцінка. Спробуйте ще!  Оцінка повинна бути від 1 до 5')
-            return HttpResponseRedirect(reverse('organisation_detail', kwargs={'slug': request.POST['organisation']}))
-    else:
-        messages.error(request, 'Невірний запит. Спробуйте ще!')
-        return HttpResponseRedirect(reverse('organisation_detail', kwargs={'slug': request.POST['organisation']}))
->>>>>>> 21a625e0fd39a6ed230266947b4b916e3dec324c

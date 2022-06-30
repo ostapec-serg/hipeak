@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'search.apps.SearchConfig',
     'telegram_bot.apps.TelegramBotConfig',
     'captcha',
-    # 'snowpenguin.django.recaptcha3',
     'social_django',
     'phonenumber_field',
     'haystack',
