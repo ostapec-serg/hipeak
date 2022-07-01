@@ -13,7 +13,7 @@ from main import views
 from tours.filters import ToursFilter
 from tours.models import Tours
 from main.permissions import IsSuperUserOrReadOnly
-from tours.serializers import ToursSerializer
+from tours.serializers import ToursSerializer, OrganisationsSerializer
 
 
 class ToursAPIView(mixins.ListModelMixin,
@@ -24,6 +24,17 @@ class ToursAPIView(mixins.ListModelMixin,
                    ):
     queryset = models.Tours.objects.filter(is_active=True)
     serializer_class = ToursSerializer
+    permission_classes = (IsSuperUserOrReadOnly,)
+
+
+class OrganisationsAPIView(mixins.ListModelMixin,
+                           mixins.CreateModelMixin,
+                           mixins.RetrieveModelMixin,
+                           mixins.UpdateModelMixin,
+                           GenericViewSet
+                           ):
+    queryset = models.Organisations.objects.all()
+    serializer_class = OrganisationsSerializer
     permission_classes = (IsSuperUserOrReadOnly,)
 
 
@@ -170,12 +181,12 @@ class BookmarkView(views.BaseRatingBookmarkView):
 
     def exist_article(self, instance):
         if 'organisation' in self.request.GET:
-            exists_rating = self._article_model.objects.filter(user_id=self.request.user,
-                                                               organisation=instance)
+            exists_article = self._article_model.objects.filter(user_id=self.request.user,
+                                                                organisation=instance)
         else:
-            exists_rating = self._article_model.objects.filter(user_id=self.request.user,
-                                                               tour=instance)
-        return exists_rating
+            exists_article = self._article_model.objects.filter(user_id=self.request.user,
+                                                                tour=instance)
+        return exists_article
 
     def bookmark_save(self, article_object):
         user = self.request.user

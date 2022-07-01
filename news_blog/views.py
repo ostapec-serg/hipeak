@@ -24,7 +24,7 @@ class NewsAPIView(mixins.ListModelMixin,
                   ):
     queryset = News.objects.all()
     serializer_class = NewsSerializer
-    permission_classes = (IsSuperUserOrReadOnly,)
+    permission_classes = (IsSuperUserOrReadOnly, )
 
 
 class NewsListView(ListView):
@@ -52,14 +52,19 @@ class AddNewsView(CreateView):
     """Render 'add news page' with AddNews Form."""
     form_class = AddNewsForm
     template_name = 'news_blog/add_news.html'
-    success_url = '/news-blog'
+    success_url = 'news:main_page'
 
     def get(self, request, *args, **kwargs):
+        """Handle GET requests: instantiate a blank version of the form."""
         if self.request.user.is_superuser:
             return super().get(request, *args, **kwargs)
         return redirect('main')
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
         form = self.get_form()
         if self.request.user.is_superuser:
             if form.is_valid():
@@ -68,7 +73,7 @@ class AddNewsView(CreateView):
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse_lazy('news:main_page')
+        return reverse_lazy(self.success_url)
 
 
 class EditNewsView(UpdateView):
@@ -76,19 +81,28 @@ class EditNewsView(UpdateView):
     template_name = 'news_blog/edit_news.html'
     form_class = EditNewsForm
     queryset = News.objects.all()
-    success_url = '/news-blog'
+    success_url = 'news:main_page'
 
     def get(self, request, *args, **kwargs):
+        """Handle GET requests: instantiate a blank version of the form."""
         if self.request.user.is_superuser:
             return super().get(request, *args, **kwargs)
-        return redirect('authorisation_page')
+        return redirect('login')
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
         form = self.get_form()
         if self.request.user.is_superuser:
             if form.is_valid():
                 return self.form_valid(form)
         return self.form_invalid(form)
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse_lazy(self.success_url)
 
 
 @login_required(login_url='/login')
@@ -112,10 +126,11 @@ def email_mailing(news_instance):
     subscribed to the newsletter
     """
     users = Profile.objects.select_related('user').filter(email_subscribe=True)
-    users_email = users.values_list('user__email', flat=True)
+    users_emails = users.values_list('user__email', flat=True)
+    #  re-write host url
     host_url = 'https://hipeak-portal.herokuapp.com'
     message = f"{news_instance.name}\n" \
               f"{news_instance.description}"\
               f"{host_url}{news_instance.get_absolute_url()}"
-    mail = ('Нова стаття', message, EMAIL_HOST_USER, users_email)
+    mail = ('Нова стаття', message, EMAIL_HOST_USER, users_emails)
     send_mass_mail((mail,), fail_silently=True)

@@ -112,6 +112,10 @@ class UserPasswordResetView(auth_views.PasswordResetView):
     extra_context = {'title': 'Reset password'}
 
     def post(self, request, *args, **kwargs):
+        """
+        Handle POST requests: instantiate a form instance with the passed
+        POST variables and then check if it's valid.
+        """
         form = self.get_form()
         if form.is_valid():
             user_email = self.request.POST['email']
@@ -153,6 +157,7 @@ def password_change_done(request):
     return redirect('main')
 
 
+# re-write
 @login_required(login_url='/login')
 def profile_delete(request):
     """Delete user profile with user"""

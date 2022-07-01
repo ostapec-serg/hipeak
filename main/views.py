@@ -1,10 +1,8 @@
 from django.contrib import messages
-from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse_lazy, reverse
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView, FormView
 
-from tours.forms import RatingForm, TourRatingsForm
 from tours import models
 
 
@@ -15,9 +13,9 @@ class MainPageView(TemplateView):
 
 class DetailViewWithComment(DetailView, FormView):
     comment_model = None  # model where the comment is stored
-    rating_form = None
-    bookmark_form = None
-    in_bookmark = False
+    rating_form = None      # model for rating
+    bookmark_form = None    # model for bookmarks
+    in_bookmark = False     # Boolean. If need to check is request user add bookmark, set True
 
     def post(self, request, *args, **kwargs):
         """
@@ -71,6 +69,7 @@ class DetailViewWithComment(DetailView, FormView):
         return context
 
 
+# re-write
 class BaseRatingBookmarkView(DetailView, FormView):
     _article_model = None  # model where the rating or bookmarks is stored
     _article = None  # tour or organisation : str
@@ -96,6 +95,7 @@ class BaseRatingBookmarkView(DetailView, FormView):
             return self.form_invalid(form)
 
     def set_settings(self):
+        """Set settings """
         if 'organisation' in self.request.POST:
             self.model = models.Organisations
             self._article_model = models.Ratings
@@ -128,11 +128,13 @@ class BaseRatingBookmarkView(DetailView, FormView):
         return save_article
 
     def exist_article(self, tour_instance):
-        exists_rating = self._article_model.objects.filter(user_id=self.request.user,
+        """Checking if article already exist"""
+        exists_article = self._article_model.objects.filter(user_id=self.request.user,
                                                            rate_article=tour_instance)
-        return exists_rating
+        return exists_article
 
     def article_save(self, form, article_object):
+        """Save article(bookmark or rating)"""
         user = self.request.user
         self._article = article_object
         rating = self.request.POST['rating']

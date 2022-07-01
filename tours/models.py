@@ -1,4 +1,4 @@
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from pytils.translit import slugify
 from registration_authorisation.models import User
 from django.db import models
@@ -39,6 +39,7 @@ class Organisations(models.Model):
                             blank='true', verbose_name='organisation_img')
 
     def save(self, *args, **kwargs):
+        """Auto save slug"""
         self.slug = slugify(self.name)
         super(Organisations, self).save(*args, **kwargs)
 
@@ -46,30 +47,33 @@ class Organisations(models.Model):
         return self.name
 
     def total_bookmarks(self):
+        """Return total organisation in_bookmarks. int()"""
         return self.in_bookmarks.count()
 
     def total_rating(self):
+        """Return rating of the organisation. int()"""
         all_voice = self.rating.count()
         if all_voice:
             rating = self.rating.values_list('ratings__rating', flat=True)
-            result = round(sum(rating) / all_voice, 1)
-            return result
-        return 0
+            return round(sum(rating) / all_voice, 1)
 
     def in_user_bookmarks(self, username):
+        """Check organisation in request.user bookmarks"""
         exists = Bookmarks.objects.filter(organisation__name=self.name, user=username)
         if exists:
             return exists
-        return None
 
     def get_non_parent_comments(self):
+        """Return list of comments who didn't have 'parent' """
         return self.organisationscomment_set.filter(parent__isnull=True)
 
     def get_absolute_url(self):
-        return f"/tours/organisations/{self.slug}"
+        """Return absolute url """
+        return reverse_lazy("tours:organisation_detail", kwargs={'slug': self.slug})
 
     def total_comments(self):
-        return self.comment.count()
+        """Return total organisation comments. int()"""
+        return self.organisationscomment_set.count()
 
     class Meta:
         verbose_name = 'Організація'
@@ -119,30 +123,34 @@ class Tours(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        """Auto save slug"""
         self.slug = slugify(self.name)
         super(Tours, self).save(*args, **kwargs)
 
     def total_rating(self):
+        """Return rating of the tour. int()"""
         all_voice = self.rating.count()
         if all_voice:
             rating = self.rating.values_list('tourratings__rating', flat=True)
             return round(sum(rating) / all_voice, 1)
-        return 0
 
     def get_absolute_url(self):
-        return reverse("tours:detail", kwargs={'slug': self.slug})
+        """Return absolute url """
+        return reverse_lazy("tours:detail", kwargs={'slug': self.slug})
 
     def total_comments(self):
-        return self.comment.count()
+        """Return total tour comments. int()"""
+        return self.tourcomments_set .count()
 
     def get_non_parent_comments(self):
+        """Return list of comments who didn't have 'parent' """
         return self.tourcomments_set.filter(parent__isnull=True)
 
     def in_user_bookmarks(self, username):
+        """Check tour in request.user bookmarks"""
         exists = TourBookmarks.objects.filter(tour__name=self.name, user=username)
         if exists:
             return exists
-        return None
 
     class Meta:
         verbose_name = 'Тур'
@@ -151,8 +159,7 @@ class Tours(models.Model):
 
 class OrganisationsComment(models.Model):
     article_name = models.ForeignKey(Organisations, on_delete=models.CASCADE, null=True)
-    author = models.ForeignKey(User, on_delete=models.SET_NULL,
-        blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     comment_text = models.CharField(max_length=150)
     pub_date = models.DateTimeField(auto_now_add=True)
     moderate_status = models.BooleanField(default=False)
@@ -171,8 +178,7 @@ class OrganisationsComment(models.Model):
 
 class TourComments(models.Model):
     article_name = models.ForeignKey(Tours, on_delete=models.CASCADE, null=True)
-    author = models.ForeignKey(User, on_delete=models.SET_NULL,
-        blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     comment_text = models.CharField(max_length=300)
     pub_date = models.DateTimeField(auto_now_add=True)
     moderate_status = models.BooleanField(default=False)
@@ -196,8 +202,6 @@ class TourBookmarks(models.Model):
     def __str__(self):
         return f"Tour: {self.tour.name} | User: {self.user.username}"
 
-    # def exist_bookmark(self):
-
     class Meta:
         verbose_name = 'Закладка. Тури'
         verbose_name_plural = 'Закладки. Тури'
@@ -216,8 +220,7 @@ class Bookmarks(models.Model):
 
 
 class TourRatings(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL,
-        blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     rate_article = models.ForeignKey(Tours, on_delete=models.CASCADE, null=True)
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICE, null=True)
 
@@ -230,9 +233,7 @@ class TourRatings(models.Model):
 
 
 class Ratings(models.Model):
-    user = models.ForeignKey(User, on_delete=models.SET_NULL,
-                             blank=True, null=True
-                             )
+    user = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     rate_article = models.ForeignKey(Organisations, on_delete=models.CASCADE, null=True)
     rating = models.PositiveSmallIntegerField(choices=RATING_CHOICE, null=True)
 

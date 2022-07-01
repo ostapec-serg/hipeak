@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse_lazy
 from pytils.translit import slugify
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -26,6 +27,7 @@ class EquipmentStores(models.Model):
                             blank='true', verbose_name='stores_images/')
 
     def save(self, *args, **kwargs):
+        """Auto save slug"""
         self.slug = slugify(self.name)
         super(EquipmentStores, self).save(*args, **kwargs)
 
@@ -33,10 +35,8 @@ class EquipmentStores(models.Model):
         return f"{self.name}: {self.service}"
 
     def get_absolute_url(self):
-        return f"/equipments/store/{self.slug}"
-
-    def __unicode__(self):
-        return self.name
+        """Return absolute url """
+        return reverse_lazy("equipment_stores:detail", kwargs={'slug': self.slug})
 
     class Meta:
         verbose_name = 'Магазин'

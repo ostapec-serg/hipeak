@@ -1,0 +1,1 @@
+function addComment(name, id){            document.getElementById("comment_text").value = id;            document.getElementById("id_comment_text").innerText = `${name}, `        }

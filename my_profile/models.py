@@ -1,4 +1,5 @@
 from django.db import models
+from django.urls import reverse_lazy
 
 from pytils.translit import slugify
 from phonenumber_field.modelfields import PhoneNumberField
@@ -19,6 +20,7 @@ class Profile(models.Model):
     email_subscribe = models.BooleanField(default=True, verbose_name='Підписка на почтову розсилку')
 
     def save(self, *args, **kwargs):
+        """Auto save slug"""
         self.slug = slugify(self.user)
         super(Profile, self).save(*args, **kwargs)
 
@@ -26,7 +28,8 @@ class Profile(models.Model):
         return self.user.username
 
     def get_absolute_url(self):
-        return f"/my-profile/{self.slug}"
+        """Return absolute url """
+        return reverse_lazy("profile:profile", kwargs={'slug': self.slug})
 
     class Meta:
         verbose_name = 'Прфіль'

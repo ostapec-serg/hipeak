@@ -12,7 +12,7 @@ django.utils.encoding.force_text = force_str
 try:
     from .local_settings import *
 except ImportError:
-    pass
+    from .local_settings_variable import *
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = [
             'hipeak-portal.herokuapp.com',

@@ -1,3 +1,5 @@
+from django.urls import reverse_lazy
+
 from registration_authorisation.models import User
 from django.db import models
 from pytils.translit import slugify
@@ -33,20 +35,25 @@ class News(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        """Auto save slug"""
         self.slug = slugify(self.name)
         super(News, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return f"/news-blog/{self.slug}"
+        """Return absolute url """
+        return reverse_lazy("news:detail", kwargs={'slug': self.slug})
 
     def total_likes(self):
+        """Return total news likes. int()"""
         return self.like.count()
 
     def get_non_parent_comments(self):
+        """Return list of comments who didn't have 'parent' """
         return self.comments_set.filter(parent__isnull=True)
 
     def total_comments(self):
-        return self.comment.count()
+        """Return total news comment. int()"""
+        return self.comments_set.count()
 
     class Meta:
         verbose_name = 'Новина'
@@ -54,7 +61,7 @@ class News(models.Model):
 
 
 class Likes(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     news = models.ForeignKey(News, on_delete=models.CASCADE)
     like_date = models.DateTimeField(auto_now_add=True)
 
@@ -68,7 +75,7 @@ class Likes(models.Model):
 
 class Comments(models.Model):
     article_name = models.ForeignKey(News, on_delete=models.CASCADE, null=True)
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.SET_DEFAULT, default=None, null=True)
     comment_text = models.CharField(max_length=300)
     pub_date = models.DateTimeField(auto_now_add=True)
     moderate_status = models.BooleanField(default=False)
@@ -84,5 +91,6 @@ class Comments(models.Model):
         verbose_name = 'Коментар'
         verbose_name_plural = 'Коментарі'
 
-    def get_comments(self):
-        pass
+    def get_ordered_comments(self):
+        return Comments.objects.all().order_by('-pub_date')
+

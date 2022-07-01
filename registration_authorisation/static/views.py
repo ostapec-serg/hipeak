@@ -1,11 +1,10 @@
-import threading
 from string import ascii_lowercase
+import threading
 from random import choices
 
 from django.contrib.auth.views import LoginView
 from django.contrib.sessions.models import Session
 from django.shortcuts import redirect
-from django.urls import reverse_lazy
 from django.views.generic import CreateView, TemplateView
 from django.contrib import messages
 
@@ -29,46 +28,25 @@ class Registration(CreateView):
     session_expiry_period = 172800
 
     def get(self, request, *args, **kwargs):
-        """Handle GET requests: instantiate a blank version of the form."""
         if self.request.user.is_authenticated:
             return redirect('main')
         return super().get(request, *args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests: if user don't exist,
-        instantiate a form instance with the passed
-        POST variables and then check if it's valid.
-        if user exist but not activate and 'last_login' is None,
-        send new confirmation email
-        """
-        username = request.POST.get("username", None)
-        email = request.POST.get("email", None)
-        if email and username:
-            check_user = self.check_user(email)
-            if check_user:
-                self.object = check_user
-                if self.check_password():
-                    self.object.username = username
-                    self.object.save()
-                    code = self.get_random_code()
-                    self.send_code(username, code)
-                    messages.success(
-                        self.request,
-                        "Для підтвердження реєстрації ми "
-                        "відправили лист на вказану пошту!"
-                    )
-                    return redirect('login')
-        self.object = None
-        return super().post(request, *args, **kwargs)
-
     def form_valid(self, form):
         """If the form is valid, save the associated model."""
-        username = form.cleaned_data["username"]
         code = self.get_random_code()
-        self.object = form.save(commit=True)
-        self.object.is_active = False
-        self.object.save()
+        username = form.cleaned_data["username"]
+        email = form.cleaned_data["email"]
+        check_user = self.check_user(email, username)
+        if check_user:
+            self.send_code(username, code)
+            messages.success(
+                self.request,
+                "Для підтвердження реєстрації ми "
+                "відправили лист на вказану пошту!"
+            )
+            return redirect('authorisation_page')
+        self.object = form.save()
         self.send_code(username, code)
         message = messages.success(
             self.request,
@@ -102,20 +80,20 @@ class Registration(CreateView):
         )
         return trd_send_registration_code
 
-    def check_user(self, email):
+    def check_user(self, email, username):
         """Checking if user exist"""
         try:
             user = User.objects.get(email=email)
             if user and user.is_active is False:
-                if not user.last_login:
-                    return user
+                user.username = username
+                user.save()
+                return user
         except User.DoesNotExist:
             return None
 
     def sending_verification_code(self, code):
         """Sending mail with activation url to user"""
-        message = self.build_message(code, self.request)
-        self.object.email_user(message['subject'], message['message'])
+        self.object.build_message(code, self.request)
 
     @staticmethod
     def get_random_code():
@@ -123,50 +101,10 @@ class Registration(CreateView):
         code = ''.join(choices(ascii_lowercase, k=12))
         return code
 
-    def build_message(self, code, request):
-        """Build message for email"""
-        url = self.get_email_url(code, request)
-        subject = "Registration on hipeak.portal"
-        message = f"Ви отримали цього листа тому, що Вашу почтову одресу " \
-                  f"вказано для реєстрації на порталі hipeak.portal як {self.object.username}.\n" \
-                  f"Якщо це були не Ви, проігноруйте цей лист!\n" \
-                  f"Для підтвердження реєстрації перейдіть за посиланням\n" \
-                  f"{url} \n" \
-                  f"!Посилання дійсне 2 дні!"
-        if subject and message:
-            message = {
-                'message': message,
-                'subject': subject
-            }
-            return message
-
-    @staticmethod
-    def get_email_url(code, request):
-        """Generate url for user confirmation"""
-        from django.contrib.sites.shortcuts import get_current_site
-        current_site = get_current_site(request)
-        name = current_site.name
-        domain = current_site.domain
-        url = f"https://{domain}{reverse_lazy('registration_confirm', kwargs={'slug': code})}"
-        return url
-
-#  IN PROGRESS
-    # def check_password(self, *args, **kwargs):
-    #     """checking not activated user password"""
-    #     pword1 = self.request.POST.get("password1", None)
-    #     pword2 = self.request.POST.get("password2", None)
-    #     if pword1 and pword2 and (pword1 == pword2):
-    #         # self.object.password = pword2
-    #         # self.object.save()
-    #         return True
-    #     self.object = None
-    #     return super().post(self.request, *args, **kwargs)
-#  IN PROGRESS
-
 
 class EmailRegisterView(TemplateView):
-    request_code = None
     success_url = "/login"
+    request_code = None
 
     def get(self, request, *args, **kwargs):
         """
