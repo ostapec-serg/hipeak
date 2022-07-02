@@ -21,7 +21,7 @@ class News(models.Model):
     category = models.ManyToManyField(NewsCategory, verbose_name="Категорії")
     pub_date = models.DateTimeField(auto_now=True)
     name = models.CharField(max_length=250, verbose_name="Назва")
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=150)
     description = models.TextField(verbose_name="Опис")
     url = models.URLField(null=True)
     video = models.CharField(max_length=350, null=True, blank=True)

@@ -12,7 +12,7 @@ class EquipmentStores(models.Model):
         ('other', 'Other'),
     )
     name = models.CharField(max_length=100, verbose_name="Назва")
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=150)
     description = models.TextField(verbose_name="Опис")
     pub_date = models.DateField(auto_now=True)
     url = models.URLField(null=True)

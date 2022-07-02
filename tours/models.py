@@ -21,7 +21,7 @@ class Category(models.Model):
 class Organisations(models.Model):
     name = models.CharField(max_length=100, unique=True)
     pub_date = models.DateTimeField(auto_now_add=True)
-    slug = models.SlugField(auto_created=True)
+    slug = models.SlugField(auto_created=True, max_length=150)
     description = models.TextField()
     location = models.CharField(max_length=100)
     url = models.URLField(blank=True, null=True)
@@ -99,7 +99,7 @@ class Tours(models.Model):
     )
 
     name = models.CharField(max_length=100, unique=True)
-    slug = models.SlugField(unique=True)
+    slug = models.SlugField(unique=True, max_length=150)
     category = models.ManyToManyField(Category, related_name='tour_category',
                                       help_text="Щоб обрати декілька категорій, зажміть 'alt' або 'command'")
     description = models.TextField()

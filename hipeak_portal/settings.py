@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = [
             'hipeak-portal.herokuapp.com',
@@ -61,7 +61,20 @@ INSTALLED_APPS = [
     'django_filters',
     'bootstrapform',
     'rest_framework',
+    'storages'
 ]
+
+#  AWS S3 settings for HEROKU
+AWS_ACCESS_KEY_ID = os.environ.get('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = os.environ.get('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = os.environ.get('AWS_STORAGE_BUCKET_NAME')
+AWS_URL = os.environ.get('AWS_URL')
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_MEDIA_URL = "{}/{}/".format(AWS_URL, AWS_STORAGE_BUCKET_NAME)
+
+MEDIA_URL = AWS_MEDIA_URL
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -135,7 +148,7 @@ DATE_INPUT_FORMATS = ['%d-%m-%Y']
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
+# MEDIA_URL = '/media/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static'),

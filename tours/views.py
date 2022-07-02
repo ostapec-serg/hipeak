@@ -4,7 +4,7 @@ from rest_framework.viewsets import GenericViewSet
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView
 
 from tours import forms
@@ -114,14 +114,22 @@ class AddTourView(CreateView):
     template_name = 'tours/add_tour.html'
     form_class = forms.AddTourForm
     queryset = models.Tours.objects.all()
-    success_url = '/tours'
+    success_url = 'tours:detail'
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse_lazy(self.success_url, kwargs={'slug': self.object.slug})
 
 
 class EditTourView(UpdateView):
     template_name = 'tours/edit_tour.html'
     form_class = forms.EditTourForm
     queryset = models.Tours.objects.all()
-    success_url = '/tours'
+    success_url = 'tours:detail'
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse_lazy(self.success_url, kwargs={'slug': self.object.slug})
 
 
 class OrganisationTourView(views.DetailViewWithComment):

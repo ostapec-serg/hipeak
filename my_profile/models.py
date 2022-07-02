@@ -9,7 +9,7 @@ from registration_authorisation.models import User
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile', verbose_name='Користувач')
-    slug = models.SlugField(auto_created=True)
+    slug = models.SlugField(auto_created=True, max_length=150)
     photo = models.ImageField(upload_to='profile_img/',
                               blank=True, null=True, verbose_name='Фото профілю')
     phone = PhoneNumberField(blank=True, help_text='В форматі(+12(345)6789 123) ', verbose_name='Номер телефону')

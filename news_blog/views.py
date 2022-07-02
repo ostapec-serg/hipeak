@@ -52,7 +52,7 @@ class AddNewsView(CreateView):
     """Render 'add news page' with AddNews Form."""
     form_class = AddNewsForm
     template_name = 'news_blog/add_news.html'
-    success_url = 'news:main_page'
+    success_url = 'news:detail'
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests: instantiate a blank version of the form."""
@@ -73,7 +73,7 @@ class AddNewsView(CreateView):
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse_lazy(self.success_url)
+        return reverse_lazy(self.success_url, kwargs={'slug': self.object.slug})
 
 
 class EditNewsView(UpdateView):
@@ -81,28 +81,11 @@ class EditNewsView(UpdateView):
     template_name = 'news_blog/edit_news.html'
     form_class = EditNewsForm
     queryset = News.objects.all()
-    success_url = 'news:main_page'
-
-    def get(self, request, *args, **kwargs):
-        """Handle GET requests: instantiate a blank version of the form."""
-        if self.request.user.is_superuser:
-            return super().get(request, *args, **kwargs)
-        return redirect('login')
-
-    def post(self, request, *args, **kwargs):
-        """
-        Handle POST requests: instantiate a form instance with the passed
-        POST variables and then check if it's valid.
-        """
-        form = self.get_form()
-        if self.request.user.is_superuser:
-            if form.is_valid():
-                return self.form_valid(form)
-        return self.form_invalid(form)
+    success_url = 'news:detail'
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse_lazy(self.success_url)
+        return reverse_lazy(self.success_url, kwargs={'slug': self.object.slug})
 
 
 @login_required(login_url='/login')
