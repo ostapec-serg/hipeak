@@ -1,1 +1,34 @@
-from django.contrib.auth.models import AbstractUserfrom django.core.mail import send_mailfrom django.db import modelsfrom django.utils.translation import gettext_lazy as _class User(AbstractUser):    """    Users within the Django authentication system are represented by this    model.    Username, email and password are required. is_active=False by default.    Other fields are optional.    """    email = models.EmailField(        _("email address"),        blank=True, unique=True,        help_text="Required. 150 characters or fewer",        error_messages={"unique": _("A user with that email already exists.")})    is_active = models.BooleanField(        _("active"),        default=True,        help_text=_(            "Designates whether this user should be treated as active. "            "Unselect this instead of deleting accounts."        ),    )    EMAIL_FIELD = "email"    USERNAME_FIELD = "username"    REQUIRED_FIELDS = [EMAIL_FIELD]    def email_user(self, subject, message, from_email=None, **kwargs):        """Send an 'email' to this user."""        send_mail(subject, message, from_email, [self.email], **kwargs)
+from django.contrib.auth.models import AbstractUser
+from django.core.mail import send_mail
+from django.db import models
+from django.utils.translation import gettext_lazy as _
+
+
+class User(AbstractUser):
+    """
+    Users within the Django authentication system are represented by this
+    model.
+    Username, email and password are required. is_active=False by default.
+    Other fields are optional.
+    """
+    email = models.EmailField(
+        _("email address"),
+        blank=True, unique=True,
+        help_text="Required. 150 characters or fewer",
+        error_messages={"unique": _("A user with that email already exists.")})
+    is_active = models.BooleanField(
+        _("active"),
+        default=True,
+        help_text=_(
+            "Designates whether this user should be treated as active. "
+            "Unselect this instead of deleting accounts."
+        ),
+    )
+
+    EMAIL_FIELD = "email"
+    USERNAME_FIELD = "username"
+    REQUIRED_FIELDS = [EMAIL_FIELD]
+
+    def email_user(self, subject, message, from_email=None, **kwargs):
+        """Send an 'email' to this user."""
+        send_mail(subject, message, from_email, [self.email], **kwargs)

@@ -1,1 +1,3 @@
-{{ object.name }}{{ object.description }}{{ object.location }}
+{{ object.name }}
+{{ object.description }}
+{{ object.location }}

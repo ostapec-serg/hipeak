@@ -1,1 +1,10 @@
-from django.urls import pathfrom search.views import *app_name = 'search'urlpatterns = [    path('', MySearchView.as_view(), name='search'),    path('contacts/', ContactsSearchView.as_view(), name='contacts'),]
+from django.urls import path
+
+from search.views import *
+
+app_name = 'search'
+
+urlpatterns = [
+    path('', MySearchView.as_view(), name='search'),
+    path('contacts/', ContactsSearchView.as_view(), name='contacts'),
+]

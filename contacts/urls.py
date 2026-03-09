@@ -1,1 +1,12 @@
-from django.urls import pathfrom contacts import viewsapp_name = 'contacts'urlpatterns = [    path('', views.ContactView.as_view(), name='main_page'),    path('equipment/', views.EquipmentStoresContactView.as_view(), name='equipmentstores'),    path('organisations/', views.OrganisationContactView.as_view(), name='organisations'),    path('about/', views.AboutView.as_view(), name='about'),    path('feedback/', views.FeedbackView.as_view(), name='feedback'),]
+from django.urls import path
+from contacts import views
+
+app_name = 'contacts'
+
+urlpatterns = [
+    path('', views.ContactView.as_view(), name='main_page'),
+    path('equipment/', views.EquipmentStoresContactView.as_view(), name='equipmentstores'),
+    path('organisations/', views.OrganisationContactView.as_view(), name='organisations'),
+    path('about/', views.AboutView.as_view(), name='about'),
+    path('feedback/', views.FeedbackView.as_view(), name='feedback'),
+]

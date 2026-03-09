@@ -1,1 +1,11 @@
-from django.urls import pathfrom my_profile import viewsapp_name = 'profile'urlpatterns = [    path('reset_password/', views.UserPasswordResetView.as_view(), name='password_reset'),    path('done/', views.password_change_done, name='password_done'),    path('profile-delete/', views.profile_delete, name='delete'),    path('<str:slug>/', views.UpdateUserDataView.as_view(), name='profile'),]
+from django.urls import path
+from my_profile import views
+
+app_name = 'profile'
+
+urlpatterns = [
+    path('reset_password/', views.UserPasswordResetView.as_view(), name='password_reset'),
+    path('done/', views.password_change_done, name='password_done'),
+    path('profile-delete/', views.profile_delete, name='delete'),
+    path('<str:slug>/', views.UpdateUserDataView.as_view(), name='profile'),
+]

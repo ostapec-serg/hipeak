@@ -1,1 +1,3 @@
-{{ object.name }}{{ object.description }}{{ object.phone }}
+{{ object.name }}
+{{ object.description }}
+{{ object.phone }}

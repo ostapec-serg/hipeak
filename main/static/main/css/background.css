@@ -1,1 +1,14 @@
-.video-box video {  width: 100%;  height: 100vh;  object-fit: cover;}.video-box {  position: fixed;    left: 0;    z-index: -1;    top: 0;    width: 100%;    height: 100vh;}
+.video-box video {
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+}
+
+.video-box {
+  position: fixed;
+    left: 0;
+    z-index: -1;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+}
